@@ -10,12 +10,12 @@
  */
 
 #include <aaai-image-test-01_inferencing.h>
-#include <TinyMLShield.h>
+#include <Arduino_OV767X.h>
 #include "base64.h"  // Used to convert data to Base64 encoding
 
 // Preprocessor settings
 #define BAUD_RATE   230400  // Must match receiver application
-#define SEND_IMG    1       // Transmit raw RGB888 image over serial
+#define SEND_IMG    1       // Transmit raw image over serial
 #define NUM_CLASSES EI_CLASSIFIER_LABEL_COUNT   // 5 classes
 
 // Camera settings: https://github.com/tinyMLx/arduino-library/blob/main/src/OV767X_TinyMLx.h
@@ -25,10 +25,10 @@
 #define CAM_FPS 5             // Supported: 1, 5
 
 // Other settings
-static const int scale_width = 80;
-static const int scale_height = 60;
-static const int crop_width = 60;
-static const int crop_height = 60;
+static const int scale_width = 40;
+static const int scale_height = 30;
+static const int crop_width = 30;
+static const int crop_height = 30;
 static const int rgb888_bytes_per_pixel = 3;
 static const int grayscale_bytes_per_pixel = 1;
 
@@ -41,7 +41,8 @@ static const char EIML_SOF[] = { 0xFF, 0xA0, 0xFF };
 typedef enum {
   EIML_RESERVED = 0,
   EIML_GRAYSCALE = 1,
-  EIML_RGB888 = 2
+  EIML_RGB565 = 2,
+  EIML_RGB888 = 3
 } EimlFormat;
 
 // Return codes for image manipulation
@@ -228,9 +229,6 @@ void setup() {
   // Initialize serial port
   Serial.begin(BAUD_RATE);
 
-  // Initialize TinyML shield
-  initializeShield();
-
   // Initialize the OV7675 camera
   if (!Camera.begin(CAM_RESOLUTION, CAM_FORMAT, CAM_FPS, CAM_TYPE)) {
     Serial.println("Failed to initialize camera");
@@ -239,9 +237,9 @@ void setup() {
   cam_bytes_per_frame = Camera.width() * Camera.height() * \
                         Camera.bytesPerPixel();
 
-  // // Initialize Edge Impulse library (configure buffer length and callback)
-  // sig.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
-  // sig.get_data = &get_signal_data;
+  // Initialize Edge Impulse library (configure buffer length and callback)
+  sig.total_length = EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE;
+  sig.get_data = &get_signal_data;
 }
 
 void loop() {
@@ -371,16 +369,27 @@ void loop() {
   // Free crop image buffer
   free(crop_img);
 
-  // ***Perform inference***
-
   // Assign input buffer
   input_buf = xmit_img;
 
-  for (int i = 0; i < 5; i++) {
-    Serial.print(input_buf[i]);
-  }
+  // Call run_classifier(). Pass in the addresses for the sig struct and
+  // the result struct. Set debug to false. Save the return code in the res
+  // variable. See here for more information and an example:
+  // https://docs.edgeimpulse.com/reference/c++-inference-sdk-library/functions/run_classifier
+  res = run_classifier(&sig, &result, false);
 
-  // ***End inference***
+  // Print return code, time it took to perform inference, and inference
+  // results. Note that the grader will ignore these outputs.
+  ei_printf("run_classifier returned: %d\r\n", res);
+  ei_printf("Timing: DSP %d ms, inference %d ms, anomaly %d ms\r\n", 
+            result.timing.dsp, 
+            result.timing.classification, 
+            result.timing.anomaly);
+  ei_printf("Predictions:\r\n");
+  for (uint16_t i = 0; i < EI_CLASSIFIER_LABEL_COUNT; i++) {
+    ei_printf("  %s: ", ei_classifier_inferencing_categories[i]);
+    ei_printf("%.5f\r\n", result.classification[i].value);
+  }
 
   // Create encoded message buffer
   uint32_t enc_len = (xmit_img_bytes + 2) / 3 * 4;
@@ -434,19 +443,52 @@ void loop() {
 // Callback: fill a section of the out_ptr buffer when requested
 static int get_signal_data(size_t offset, size_t length, float *out_ptr) {
 
-  float pixel_f;
+  size_t bytes_left = length;
+  size_t pixel_ix = offset;
+  size_t out_ix = 0;
+  float pixel_f = 0;
 
   // Fill buffer with correctly formatted pixel data
   switch(CAM_FORMAT) {
+
+    // If camera is set to RGB565, then buffer is actually RGB888
     case RGB565:
-      for (size_t i = 0; i < length; i++) {
-        out_ptr[i] = (input_buf + offset)[i];
+      uint8_t r, g, b;
+      while (bytes_left != 0) {
+
+        // Combine RGB channels into single value
+        r = input_buf[3 * pixel_ix];
+        g = input_buf[(3 * pixel_ix) + 1];
+        b = input_buf[(3 * pixel_ix) + 2];
+        pixel_f = (r << 16) | (g << 8) | b;
+        out_ptr[out_ix] = pixel_f;        
+
+        // Go to next pixel
+        out_ix++;
+        pixel_ix++;
+        bytes_left--;
       }
+    
+    // Copy grayscale image to output buffer
     case GRAYSCALE:
-      for (size_t i = 0; i < length; i++) {
-        out_ptr[i] = (input_buf + offset)[i];
+      while (bytes_left != 0) {
+
+        // Convert grayscale to RGB format by copying gray value to each channel
+        pixel_f = (input_buf[pixel_ix] << 16) | 
+                  (input_buf[pixel_ix] << 8) | 
+                  input_buf[pixel_ix];
+        out_ptr[out_ix] = pixel_f;
+        
+        // Go to next pixel
+        out_ix++;
+        pixel_ix++;
+        bytes_left--;
       }
+
+    // All other formats are not supported
     default:
+      break;
   } 
+  
   return EIDSP_OK;
 }
