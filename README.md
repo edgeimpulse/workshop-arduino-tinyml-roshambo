@@ -8,7 +8,8 @@ Welcome to the Roshambo workshop! We will build an image classification system t
  4. Test inference locally on the Arduino using a static buffer
  5. Perform live, continuous inference that identifies hand gestures in real time
 
-{% note %}
+> **Note**
+> Test
 Note that helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for attribution!
 {% endnote %}
 
@@ -16,7 +17,7 @@ Note that helpful information will be highlighted in boxes like this. As the wri
 
 This workshop is designed for the [Arduino Tiny Machine Learning Kit](https://store-usa.arduino.cc/products/arduino-tiny-machine-learning-kit).
 
-If you do not have the kit, then you will need an [Arduino Nano 33 BLE Sense](https://store-usa.arduino.cc/products/arduino-nano-33-ble-sense) and an [OV7675 camera](https://www.arducam.com/products/camera-breakout-board/0-3mp-ov7675/). Connect the camera to the Arduino pins given at the top of this [header file](https://github.com/arduino-libraries/Arduino_OV767X/blob/master/src/OV767X.h#L12).
+If you do not have the kit, then you will need an [Arduino Nano 33 BLE Sense](https://store-usa.arduino.cc/products/arduino-nano-33-ble-sense) and an [OV7675 camera](https://www.arducam.com/products/camera-breakout-board/0-3mp-ov7675/). Connect the camera to the Arduino pins given at the top of [this sketch](01-data-capture/nano33_tinyml_kit_image_serial/nano33_tinyml_kit_image_serial.ino).
 
 ## Prerequisites
 
@@ -51,19 +52,19 @@ You should see "Done" if your program uploaded successfully. You are welcome to 
 
 Open a terminal window and navigate to this directory. For example:
 
-```
+```shell
 cd Downloads/workshop-arduino-tinyml-roshambo/
 ```
 
 Install the [PySerial](https://pyserial.readthedocs.io/en/latest/) and [Pillow](https://pillow.readthedocs.io/en/stable/) Python packages:
 
-```
+```shell
 python -m pip install Pillow pyserial
 ```
 
 Run the Serial Image Capture Python script:
 
-```
+```shell
 python 01-data-capture/serial-image-capture.py
 ```
 
@@ -103,7 +104,7 @@ Finally, set the label to "_unknown" and capture around 50 images of your hand p
 
 When you are done, exit out of the *Serial Image Capture* program (click the 'X' in the corner of the window like you would for any application). Add all of your newly created images to a ZIP file named **dataset.zip**. If you are using macOS or Linux, you can accomplish this with the following command:
 
-```
+```shell
 zip -FS -r dataset.zip *.png
 ```
 
