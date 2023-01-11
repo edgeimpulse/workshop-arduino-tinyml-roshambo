@@ -1,15 +1,18 @@
 /**
  * Arduino Nano 33 BLE Sense TinyML Kit - Image Classification
  * 
- * Capture image, perform inference using the Edge Impulse library, 
- * and print classification results to screen.
+ * Capture image, perform inference using the Edge Impulse library, and print
+ * classification results to screen. Images are sent over serial and can be
+ * viewed with the Serial Image Capture script:
+ *
+ *  python serial-image-capture.py
  * 
  * Author: Shawn Hymel (EdgeImpulse, Inc.)
  * Date: January 6, 2023
  * License: Apache-2.0
  */
 
-#include <aaai-image-test-01_inferencing.h>
+#include <YOUR_EI_LIBRARY.h>
 #include <Arduino_OV767X.h>
 #include "base64.h"  // Used to convert data to Base64 encoding
 
