@@ -2,7 +2,7 @@
 
 Welcome to the Roshambo workshop! We will build an image classification system that automatically identifies the rock, paper, scissors hand gestures on a low-power embedded system. Specifically, we will perform the following steps:
 
- 1. Capture raw data using the Arduino board
+ 1. [Capture raw data using the Arduino board](#01-data-capture)
  2. Automatically generate new samples using data augmentation
  3. Train a convolutional neural network on the dataset using Edge Impulse
  4. (Optional) Test inference locally on the Arduino using a static buffer
