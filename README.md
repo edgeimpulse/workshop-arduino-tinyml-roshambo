@@ -9,7 +9,7 @@ Welcome to the Roshambo workshop! We will build an image classification system t
  5. [Perform live, continuous inference that identifies hand gestures in real time](#05-live-inference)
 
 > **Note**
-> Helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for attribution!
+> Helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for [attribution](https://creativecommons.org/licenses/by-nc-sa/4.0/)!
 
 ## Required Hardware
 
@@ -90,25 +90,25 @@ Do the same thing to gather around 50 images for "scissors" (index and middle fi
 
 ![Capture "scissors" hand gesture](images/screen-05.png)
 
-Next, we want to capture some background and unkown samples so that the model can tell that you are not giving one of the target labels. Use the label "_background" and capture around 50 images of your background.
+Next, we want to capture some background and unkown samples so that the model can tell that you are not giving one of the target hand gestures. Use the label "_background" and capture around 50 images of your background.
 
 ![Capture "background" images](images/screen-06.png)
 
 > **Note**
-> We recommend using an underscore ('_') prefix to differentiate non-target labels. It makes reading labels a little easier in future steps.
+> We recommend using an underscore ('_') prefix to differentiate non-target labels. It makes reading labels a little easier in future steps, as Edge Impulse alphabetizes class labels.
 
-Finally, set the label to "_unknown" and capture around 50 images of your hand performing a gesture that is clearly not one of "rock," "paper," or "scissors."
+Finally, set the label to "_unknown" and capture around 50 images of your hand performing different gestures that are clearly not one of "rock," "paper," or "scissors."
 
 ![Capture "unknown" hand gestures](images/screen-07.png)
 
-When you are done, exit out of the *Serial Image Capture* program (click the 'X' in the corner of the window like you would for any application). Add all of your newly created images to a ZIP file named **dataset.zip**. If you are using macOS or Linux, you can accomplish this with the following command:
+When you are done, exit out of the *Serial Image Capture* program (click the 'X' in the corner of the window like you would for any other application). Add all of your newly created images to a ZIP file named **dataset.zip**. If you are using macOS or Linux, you can accomplish this with the following command:
 
 ```shell
 zip -FS -r dataset.zip *.png
 ```
 
 > **Note**
-> If you are unable to collect data for this project, you are welcome to use the dataset provided in this repository: [Arduino_OV767X.zip](Arduino_OV767X.zip?raw=true). Note that this dataset is unique to one hand and in one environment. It likely will not work as well for you, as your hands are different size/shape/color, and your environment is different.
+> If you are unable to collect data for this project, you are welcome to use the dataset provided in this repository: [Arduino_OV767X.zip](Arduino_OV767X.zip?raw=true). Note that this dataset is unique to one hand and in one environment. It likely will not work as well for you, as your hands are different size/shape/color and in a different environment.
 
 ## 02: Data Augmentation
 
@@ -132,9 +132,9 @@ Click on **Dashboard** and click on the **Keys** tab. Double-click to highlight 
 
 Head back to the Google Colab script. Continue running cells until you get to the `### Settings` cell. Overwrite the value of the `EI_API_KEY` string with the API key you copied from your project.
 
-![Paste API key into Google Colab script](images/screen-10.png)]
+![Paste API key into Google Colab script](images/screen-10.png)
 
-Continue running cells. This script performs the following actions:
+Continue running cells. The script performs the following actions:
 
  * Extracts your *dataset.zip* into the */content/dataset/* folder
  * Generates new images based on each original image: flipped, rotated, zoomed, translated, noise added
@@ -152,9 +152,9 @@ If you head to the *Data acquisition* page in your Edge Impulse project, you sho
 
 Go to your project in Edge Impulse. Go to the **Impulse design** page. Change the *Image data* resolution to be:
 
- * Image width: 30
- * Image height: 30
- * Resize mode: Fit shortest
+ * Image width: **30**
+ * Image height: **30**
+ * Resize mode: **Fit shortest**
 
 Click **Add a processing block** and add the **Image** block. Click **Add a learning block** and select the **Classification** block.
 
@@ -167,7 +167,7 @@ Click on **Image** under *Impulse design*. Change the *Color depth* to **Graysca
 Click **Save parameters** and click **Generate features** on the next page. Wait while Edge Impulse generates the training features from your dataset.
 
 > **Note**
-> Generating features for images simply means creating Numpy arrays from the raw image data in a common format that can be read by the training block. For other types of data, such as time series data, feature extraction might include a fast Fourier transform (FFT), spectrogram, statistical analysis (e.g. mean, skeyness, and kurtosis), and so on. Feature extraction and engineering is another area of active research.
+> Generating features for images simply means creating Numpy arrays from the raw image data in a common format that can be read by the training block. For other types of data, such as time series data, feature extraction might include a fast Fourier transform (FFT), spectrogram, statistical analysis (e.g. mean, skewness, and kurtosis), and so on. Feature extraction and engineering is another active area of research.
 
 When feature extraction is complete, you should see a 2D feature explorer showing the relative separation among the class groupings along with an estimation of the time and resources required to perform feature extraction on your target device (default: Arm Cortex-M4F).
 
@@ -178,7 +178,7 @@ Click on **Classifier** under *Impulse design*. Change the *Number of training c
 > **Note**
 > The default Edge Impulse convolutional nerual network works great for simple image data (like the image set we are using). Feel free add/remove layers or modify existing layers to see if that affects your model accuracy! If you are comfortable with Python and Keras, you can click on the 3-dot menu and select *Switch to Keras (expert) mode* to modify the training code manually. Note that in order for your model to run on a microcontroller, you are limited to the [operations and layers available in TensorFlow Lite Micro](https://github.com/tensorflow/tflite-micro/blob/main/tensorflow/lite/micro/all_ops_resolver.cc).
 
-When training is complete, take a look at the model results Before the training process starts, Edge Impulse automatically sets aside a random 20% of your training data for validation. The accuracy, loss, and confusion matrix are calculated based on this validation set. How well did your model perform?
+When training is complete, take a look at the model results. Before the training process starts, Edge Impulse automatically sets aside a random 20% of your training data for validation. The accuracy, loss, and confusion matrix are calculated based on this validation set. How well did your model perform?
 
 ![Training the machine learning model in Edge Impulse](images/screen-15.png)
 
@@ -209,7 +209,7 @@ Open the Arduino IDE. Select **Sketch > Include Library > Add .ZIP Library**. Se
 
 ![Installing Edge Impulse inference library in Arduino IDE](images/screen-18.png)
 
-Open **File > Examples > <name of your libary> > nano_ble33_sense > nano_ble33_sense_camera**. Feel free to look at this code, but we will be using something else for static inference. Copy the `#include` line for your library.
+Open **File > Examples > \<NAME_OF_LIBRARY\> > nano_ble33_sense > nano_ble33_sense_camera**. Feel free to look at this code, but we will be using something else for static inference. Copy the `#include` line for your library.
 
 ![Copy Edge Impulse library name in Arduino IDE](images/screen-19.png)
 
@@ -235,7 +235,7 @@ Once complete, open the *Serial Monitor* to view the inference results. They sho
 
 If you did not perform the static inference steps, you will need to import the Edge Impulse library. Open the Arduino IDE. Select **Sketch > Include Library > Add .ZIP Library**. Select the library that you downloaded from Edge Impulse and click **Open**.
 
-Open **File > Examples > <name of your libary> > nano_ble33_sense > nano_ble33_sense_camera**. Copy the `#include` line for your library.
+Open **File > Examples > \<NAME_OF_LIBRARY\> > nano_ble33_sense > nano_ble33_sense_camera**. Copy the `#include` line for your library.
 
 Open [05-live-inference/nano33_camera_live_inference/nano33_camera_live_inference.ino](https://github.com/edgeimpulse/courseware-embedded-machine-learning/blob/main/workshop-arduino-tinyml-roshambo/05-live-inference/nano33_camera_live_inference/nano33_camera_live_inference.ino?raw=true). Paste in the library include filename for the Edge Impulse library.
 
@@ -266,7 +266,7 @@ Your challenge is to make one of the LEDs on the Arduino board light up whenever
  * Green: "paper"
  * Blue: "scissors"
 
-The LEDs should be off for any other class (e.g. "_background" and "_unknown"). One way to do this is to compare the confidence score values to a threshold. You can also simply identify the class with the highest score.
+The LEDs should be off for any other class (e.g. "_background" and "_unknown"). One way to do this is to compare the confidence score values to a threshold. You can also simply identify the class with the highest score. [This tutorial](https://support.arduino.cc/hc/en-us/articles/360016724140-How-to-control-the-RGB-LED-and-Power-LED-of-the-Nano-33-BLE-boards-) demonstrates how to control the LEDs on the Nano 33 BLE Sense.
 
 > **Note**
 > Choosing an appropriate threshold can be tricky and depends on your use case. Higher thresholds (e.g. 70%) for a class reduce false positives, but you might miss some true positives (i.e. increased false negative rate). Lower thresholds (e.g. 30%) reduce false negatives but might introduce more false positives. 
