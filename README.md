@@ -5,7 +5,7 @@ Welcome to the Roshambo workshop! We will build an image classification system t
  1. Capture raw data using the Arduino board
  2. Automatically generate new samples using data augmentation
  3. Train a convolutional neural network on the dataset using Edge Impulse
- 4. Test inference locally on the Arduino using a static buffer
+ 4. (Optional) Test inference locally on the Arduino using a static buffer
  5. Perform live, continuous inference that identifies hand gestures in real time
 
 > **Note**
@@ -40,7 +40,7 @@ Almost every supervised machine learning project starts with some kind of datase
 
 Open the Arduino IDE. Go to **Tools > Board > Boards Manager...**. Search for "nano 33" in the boards manager pane. Install the **Arduino Mbed OS Nano Boards** board package.
 
-%%%screen-01
+![Install board package in Arduino IDE](images/screen-01.png)
 
 Go to **Sketch > Include Library > Add .ZIP Librar...**. Select **Arduino_OV767X.zip** file. This library is required for the Arduino Nano 33 BLE Sense to communicate with the camera on the TinyML kit.
 
@@ -199,7 +199,7 @@ Scroll down to the bottom of the page. Leave the [EON Compiler](https://www.edge
 
 When the build process is complete, you should have an Arduino library (in .zip format) automatically downloaded to your computer. This library includes the blocks we created in the Edge Impulse Studio: feature extraction and classification (i.e. the fully trained model).
 
-## 04: Static Inference (Optional)
+## 04: (Optional) Static Inference
 
 It is often helpful to ensure that model inference executes in the same way you saw in a higher-level langauge (or, in our case, the Edge Impulse Studio). To accomplish this, we perform inference with a known-good sample in the Edge Impulse Studio and on our target hardware. We then compare the results to ensure they are the same (or close enough).
 
