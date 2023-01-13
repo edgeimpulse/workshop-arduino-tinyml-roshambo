@@ -3,10 +3,10 @@
 Welcome to the Roshambo workshop! We will build an image classification system that automatically identifies the rock, paper, scissors hand gestures on a low-power embedded system. Specifically, we will perform the following steps:
 
  1. [Capture raw data using the Arduino board](#01-data-capture)
- 2. Automatically generate new samples using data augmentation
- 3. Train a convolutional neural network on the dataset using Edge Impulse
- 4. (Optional) Test inference locally on the Arduino using a static buffer
- 5. Perform live, continuous inference that identifies hand gestures in real time
+ 2. [Automatically generate new samples using data augmentation](#02-data-augmentation)
+ 3. [Train a convolutional neural network on the dataset using Edge Impulse](#03-model-training)
+ 4. (Optional) [Test inference locally on the Arduino using a static buffer](#04-optional-static-inference)
+ 5. [Perform live, continuous inference that identifies hand gestures in real time](#05-live-inference)
 
 > **Note**
 > Helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for attribution!
@@ -70,7 +70,7 @@ python 01-data-capture/serial-image-capture.py
 
 Pay attention to the serial ports printed to the console! Copy the serial port location for your Arduino board. For example, this might be something like *COM7* on Windows or */dev/cu.usbmodem1442201* on macOS.
 
-%%%screen-02
+![Copy serial device port](images/screen-02.png)
 
 Paste that serial port location into the *Port* entry in the *Serial Image Capture* GUI. Make sure that the baud rate matches that found in the Arduino sketch (should be 230400 unless you changed it).
 
@@ -78,28 +78,28 @@ Press **Connect**. You should see a live view of the Arduino camera. Click *Embi
 
 Enter "rock" for your first label. Hold your fist over the camera and ensure that you can see your whole hand in the viewer. Click **Save Image**. This will save the image shown in the viewer at the original resolution (default: 30x30, grayscale) in the directory you ran Python (e.g. this directory).
 
-%%%screen-03
+![Capture "rock" hand gesture](images/screen-03.png)
 
 Repeat this process about 50 times. Each time, you should move your fist slightly (to help ensure the model is robust), but make sure your fist is fully visible in the viewer each time.
 
 Repeat the data collection process for "paper" (hand flat out over the camera). Once again, ensure that your hand is almost entirely visible where possible. 
 
-%%%screen-04
+![Capture "paper" hand gesture](images/screen-04.png)
 
 Do the same thing to gather around 50 images for "scissors" (index and middle finger making a 'V').
 
-%%%screen-05
+![Capture "scissors" hand gesture](images/screen-05.png)
 
 Next, we want to capture some background and unkown samples so that the model can tell that you are not giving one of the target labels. Use the label "_background" and capture around 50 images of your background.
 
-%%%screen-06
+![Capture "background" images](images/screen-06.png)
 
 > **Note**
 > We recommend using an underscore ('_') prefix to differentiate non-target labels. It makes reading labels a little easier in future steps.
 
 Finally, set the label to "_unknown" and capture around 50 images of your hand performing a gesture that is clearly not one of "rock," "paper," or "scissors."
 
-%%%screen-07
+![Capture "unknown" hand gestures](images/screen-07.png)
 
 When you are done, exit out of the *Serial Image Capture* program (click the 'X' in the corner of the window like you would for any application). Add all of your newly created images to a ZIP file named **dataset.zip**. If you are using macOS or Linux, you can accomplish this with the following command:
 
@@ -122,17 +122,17 @@ Once the Notebook is open, run the first code cell (press **shift + enter** to r
 
 While that cell is running, click on the *folder* icon on the left-side pane to open the file browser pane. Right-click (or click the *upload* icon) to upload a file to the Notebook. Select your **dataset.zip** and click **Open**. This will upload your original dataset.
 
-%%%screen-08
+![Upload dataset to Google Colab script](images/screen-08.png)
 
 Go to [edgeimpulse.com](https://edgeimpulse.com/). Create an account if you have not already done so. Click **Login** and click **Create new project**. Give your project a fun name, like "Roshambo Classifier."
 
 Click on **Dashboard** and click on the **Keys** tab. Double-click to highlight the entire API key and copy it (don't worry if you can't see the whole key, it will be copied).
 
-%%%screeon-09
+![Copy API key from Edge Impulse](images/screen-09.png)
 
 Head back to the Google Colab script. Continue running cells until you get to the `### Settings` cell. Overwrite the value of the `EI_API_KEY` string with the API key you copied from your project.
 
-%%%screen-10
+![Paste API key into Google Colab script](images/screen-10.png)]
 
 Continue running cells. This script performs the following actions:
 
@@ -146,6 +146,8 @@ Continue running cells. This script performs the following actions:
 
 If you head to the *Data acquisition* page in your Edge Impulse project, you should see your fully augmented dataset split between the *Training data* and *Test data* tabs. Note that some images might not be uploaded: Edge Impulse performs a deep inspection (via hashing) of each sample to ensure no two samples are the same. So, if you try to upload two images that are exactly the same, Edge Impulse will keep the first and reject the second.
 
+![Images as part of the training dataset in Edge Impulse](images/screen-11.png)
+
 ## 03: Model Training
 
 Go to your project in Edge Impulse. Go to the **Impulse design** page. Change the *Image data* resolution to be:
@@ -156,11 +158,11 @@ Go to your project in Edge Impulse. Go to the **Impulse design** page. Change th
 
 Click **Add a processing block** and add the **Image** block. Click **Add a learning block** and select the **Classification** block.
 
-%%%screen-12
+![Building an impulse with processing and learning blocks in Edge Impulse](images/screen-12.png)
 
 Click on **Image** under *Impulse design*. Change the *Color depth* to **Grayscale**. 
 
-%%%screen-13
+![Change color depth to grayscale in Edge Impulse processing block](images/screen-13.png)
 
 Click **Save parameters** and click **Generate features** on the next page. Wait while Edge Impulse generates the training features from your dataset.
 
@@ -169,7 +171,7 @@ Click **Save parameters** and click **Generate features** on the next page. Wait
 
 When feature extraction is complete, you should see a 2D feature explorer showing the relative separation among the class groupings along with an estimation of the time and resources required to perform feature extraction on your target device (default: Arm Cortex-M4F).
 
-%%%screen-14
+![Generate features for dataset in Edge Impulse](images/screen-14.png)
 
 Click on **Classifier** under *Impulse design*. Change the *Number of training cycles* (epochs) to **100**. Leave everything else as default. Click **Start training**.
 
@@ -178,24 +180,24 @@ Click on **Classifier** under *Impulse design*. Change the *Number of training c
 
 When training is complete, take a look at the model results Before the training process starts, Edge Impulse automatically sets aside a random 20% of your training data for validation. The accuracy, loss, and confusion matrix are calculated based on this validation set. How well did your model perform?
 
-%%%screen-15
+![Training the machine learning model in Edge Impulse](images/screen-15.png)
 
 Go to the **Model testing** page and click **Classify all**. This will perform inference on your test dataset and display the results.
 
-%%%screen-21
+![Training results from validation dataset in Edge Impulse](images/screen-21.png)
 
 Navigate to the **Deployment** page in your project. Edge Impulse is capable of exporting your project (feature extraction and model inference) to a number of supported hardware platforms. Note that the *C++ library* option is the most versatile: so long as your target hardware has a C++ compiler (and enough flash/RAM), you can run inference with your trained Edge Impulse model! However, the C++ library may not be optimized for some hardware (e.g. ML accelerators).
 
 Select the **Arduino library** option, as we'll be using Arduino to build our embedded project.
 
-%%%screen-16
+![Deploying the machine learning model as an Arduino library in Edge Impulse](images/screen-16.png)
 
 Scroll down to the bottom of the page. Leave the [EON Compiler](https://www.edgeimpulse.com/blog/introducing-eon) enabled (this converts your interpreted model to C++ code to save on flash/ROM). Leave *Quantized (int8)* selected. Click **Build**
 
 > **Note**
 > Quantization converts the floating point parameter values in a model to integer values (e.g. 8-bit integers). While this causes some reduction in accuracy, it allows for faster execution (especially on hardware without a [floating-point unit](https://en.wikipedia.org/wiki/Floating-point_unit)) and a smaller flash/RAM footprint for the model. Quantization is a crucial optimization for embedded ML, and it is a great place for exploration by researchers and students! [This paper](https://arxiv.org/abs/2103.13630) is a good starting place to learn more about quantization.
 
-%%%screen-17
+![Selecting quantized optimization setting in Edge Impulse](images/screen-17.png)
 
 When the build process is complete, you should have an Arduino library (in .zip format) automatically downloaded to your computer. This library includes the blocks we created in the Edge Impulse Studio: feature extraction and classification (i.e. the fully trained model).
 
@@ -205,29 +207,29 @@ It is often helpful to ensure that model inference executes in the same way you 
 
 Open the Arduino IDE. Select **Sketch > Include Library > Add .ZIP Library**. Select the library that you downloaded from Edge Impulse and click **Open**.
 
-%%%screen-18
+![Installing Edge Impulse inference library in Arduino IDE](images/screen-18.png)
 
 Open **File > Examples > <name of your libary> > nano_ble33_sense > nano_ble33_sense_camera**. Feel free to look at this code, but we will be using something else for static inference. Copy the `#include` line for your library.
 
-%%%screen-19
+![Copy Edge Impulse library name in Arduino IDE](images/screen-19.png)
 
 Open [04-static-inference/nano33_camera_static_inference/nano33_camera_static_inference.ino](https://github.com/edgeimpulse/courseware-embedded-machine-learning/blob/main/workshop-arduino-tinyml-roshambo/04-static-inference/nano33_camera_static_inference/nano33_camera_static_inference.ino?raw=true). Paste in the library include filename for the Edge Impulse library (this should match the one you copied from the example!).
 
-%%%screen-20
+![Paste Edge Impulse library name in Arduino IDE](images/screen-20.png)
 
 Go back to your Edge Impulse project and navigate to **Model testing**. Find an example that did not achieve 100% accuracy, click the 3-dot menu on that sample, and select **Show classification**. This will open a new tab with the inference results for that one sample. Click the **Copy** button next to *Raw features*.
 
-%%%screen-22
+![Copy raw features from Edge Impulse test sample](images/screen-22.png)
 
 Paste these features into the `input_buf[]` array.
 
-%%%screen-23
+![Paste raw features from test sample into Arduino IDE](images/screen-23.png)
 
 Upload the code to your Arduino. Note that this will take some time! For Windows users, this might take 15+ minutes (as Arduino does not multi-thread the compilation process on Windows). Expect the build process to take 5-10 minutes on other operating systems.
 
 Once complete, open the *Serial Monitor* to view the inference results. They should be close to what you saw in the Edge Impulse Studio. Note that Edge Impulse uses the floating point version of the model when performing inference on the test set. Because we are using the quantized version, the confidence scores for the classes may be off by a few percentage points.
 
-%%%screen-24
+![Inference results in Arduino Serial Monitor from static buffer test sample](images/screen-24.png)
 
 ## 05: Live Inference
 
@@ -237,7 +239,7 @@ Open **File > Examples > <name of your libary> > nano_ble33_sense > nano_ble33_s
 
 Open [05-live-inference/nano33_camera_live_inference/nano33_camera_live_inference.ino](https://github.com/edgeimpulse/courseware-embedded-machine-learning/blob/main/workshop-arduino-tinyml-roshambo/05-live-inference/nano33_camera_live_inference/nano33_camera_live_inference.ino?raw=true). Paste in the library include filename for the Edge Impulse library.
 
-%%%screen-25
+![Paste Edge Impulse library into Arduino IDE](images/screen-25.png)
 
 Upload the code to your Arduino board. Compiling the Edge Impulse library will likely take a while, so be patient. Once complete, run the Serial Image Capture script from a terminal:
 
@@ -247,7 +249,7 @@ python 01-data-capture/serial-image-capture.py
 
 Paste in the port of your Arduino board and click **Connect**. The viewer will show you what the Arduino sees. Hold your hand over the camera and make the various gestures (e.g. rock, paper, scissors). Take a look at the terminal window--you should see the live inference results being printed!
 
-%%%screen-26
+![Live machine learning model inference performed from raw camera capture on Arduino](images/screen-26.png)
 
 The label with the highest score is the predicted class. As shown in the screenshot, "scissors" has a confidence score of 0.99219, meaning the model predicts that the input image likely belongs to the "scissors" class.
 
