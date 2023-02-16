@@ -75,6 +75,7 @@ class GUI:
     
         self.root = root
         self.connected = False
+        self.port = ""
         
         # Start image Rx thread
         self.rx_task = ImageRxTask(self)
@@ -83,9 +84,14 @@ class GUI:
 
         # Get initial list of ports
         self.available_ports = []
-        for port, desc, hwid in sorted(self.rx_task.get_serial_list()):
-            print("  {} : {} [{}]".format(port, desc, hwid))
-            self.available_ports.append(port)
+        serial_list = sorted(self.rx_task.get_serial_list())
+        print("Available serial ports:")
+        if serial_list:
+            for port, desc, hwid in serial_list:
+                print("  {} : {} [{}]".format(port, desc, hwid))
+                self.available_ports.append(port)
+        else:
+            self.available_ports = [""]
 
         # Create the main container
         self.frame_main = tk.Frame(self.root)
@@ -113,8 +119,6 @@ class GUI:
         self.label_port = tk.Label( self.frame_control,
                                     text="Port:")
         self.menu_port = tk.OptionMenu(self.frame_control, self.var_port, *self.available_ports)
-        # self.entry_port = tk.Entry( self.frame_control,
-        #                             textvariable=self.var_port)
         self.label_baud = tk.Label( self.frame_control,
                                     text="Baud:")
         self.entry_baud = tk.Entry( self.frame_control,
@@ -150,7 +154,6 @@ class GUI:
         # Lay out widgets on control frame
         self.label_port.grid(row=0, column=0, padx=5, pady=3, sticky=tk.W)
         self.menu_port.grid(row=0, column=1, padx=5, pady=3, sticky=tk.W)
-        # self.entry_port.grid(row=0, column=1, padx=5, pady=3, sticky=tk.W)
         self.label_baud.grid(row=1, column=0, padx=5, pady=3, sticky=tk.W)
         self.entry_baud.grid(row=1, column=1, padx=5, pady=3, sticky=tk.W)
         self.button_connect.grid(row=2, column=0, columnspan=2, padx=5, pady=3)
@@ -189,13 +192,23 @@ class GUI:
         except:
             print("ERROR: baud rate must be an integer")
             return
+
+        # Don't connect if no port is selected
+        self.port = self.var_port.get()
+        if self.port == "":
+            print("No port selected")
+            return
+
+        # Say that we're trying to connect
+        print("Connecting to {} at a baud rate of {} ...".format(self.port, baud_rate))
         
         # Attempt to connect to device
-        print(self.var_port.get())
-        res = self.rx_task.connect(self.var_port.get(), baud_rate)
+        res = self.rx_task.connect(self.port, baud_rate)
         if (res == self.rx_task.OK):
+            print("Connected!")
             self.connected = True
         else:
+            print("Could not connect")
             self.connected = False
         
     def on_save_clicked(self):
@@ -297,16 +310,31 @@ class GUI:
         """Update serial port list periodically"""
 
         # Update available ports
-        new_ports = []
-        for port, desc, hwid in sorted(self.rx_task.get_serial_list()):
-            new_ports.append(port)
+        serial_list = sorted(self.rx_task.get_serial_list())
+        if serial_list:
+            new_ports = []
+            for port, desc, hwid in serial_list:
+                new_ports.append(port)
+        else:
+            new_ports = [""]
+
+        # See if we're still connected
+        if (self.connected) and (self.port not in new_ports):
+            print("Disconnected")
+            self.connected = False
+            self.port = ""
+            self.var_port.set(self.port)
 
         # If list has changed, update menu
         if new_ports != self.available_ports:
             self.available_ports = new_ports
             self.menu_port['menu'].delete(0, 'end')
-            for port in self.available_ports:
-                self.menu_port['menu'].add_command(label=port, command=tk._setit(self.var_port, port))
+            if self.available_ports:
+                for port in self.available_ports:
+                    self.menu_port['menu'].add_command(label=port, 
+                                                        command=tk._setit(self.var_port, port))
+            else:
+                self.available_ports = [""]
 
         # Reschedule function
         self.canvas.after(SERIAL_LIST_REFRESH, self.refresh_serial_list)
@@ -352,9 +380,6 @@ class ImageRxTask(threading.Thread):
         # Update port settings
         self.ser.port = port
         self.ser.baudrate = baud_rate
-        
-        # Say that we're trying here
-        print("Connecting to {} at a baud rate of {}".format(port, baud_rate))
 
         # Try to open a connection
         try:
