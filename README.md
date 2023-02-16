@@ -65,7 +65,7 @@ python -m pip install Pillow pyserial
 Run the Serial Image Capture Python script:
 
 ```shell
-python 01-data-capture/serial-image-capture.py
+serial-image-capture.py
 ```
 
 Pay attention to the serial ports printed to the console! Copy the serial port location for your Arduino board. For example, this might be something like *COM7* on Windows or */dev/cu.usbmodem1442201* on macOS.
@@ -244,7 +244,7 @@ Open [05-live-inference/nano33_camera_live_inference/nano33_camera_live_inferenc
 Upload the code to your Arduino board. Compiling the Edge Impulse library will likely take a while, so be patient. Once complete, run the Serial Image Capture script from a terminal:
 
 ```shell
-python 01-data-capture/serial-image-capture.py
+python serial-image-capture.py
 ```
 
 Paste in the port of your Arduino board and click **Connect**. The viewer will show you what the Arduino sees. Hold your hand over the camera and make the various gestures (e.g. rock, paper, scissors). Take a look at the terminal window--you should see the live inference results being printed!

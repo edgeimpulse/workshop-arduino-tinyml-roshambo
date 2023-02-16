@@ -34,9 +34,10 @@ import serial.tools.list_ports
 
 # Settings
 INIT_BAUD = 230400          
-MAX_REFRESH = 10        # Milliseconds
-EMBIGGEN_FACTOR = 4     # Scale image by this amount for viewport
-IMG_EXT = ".png"        # Extension for image (.png or .jpg)
+MAX_REFRESH = 10            # Milliseconds
+SERIAL_LIST_REFRESH = 1000  # Milliseconds
+EMBIGGEN_FACTOR = 4         # Scale image by this amount for viewport
+IMG_EXT = ".png"            # Extension for image (.png or .jpg)
 
 # EIML constants for header
 # |     SOF     |  format  |   width   |   height  |
@@ -79,7 +80,13 @@ class GUI:
         self.rx_task = ImageRxTask(self)
         self.rx_task.daemon = True
         self.rx_task.start()
-        
+
+        # Get initial list of ports
+        self.available_ports = []
+        for port, desc, hwid in sorted(self.rx_task.get_serial_list()):
+            print("  {} : {} [{}]".format(port, desc, hwid))
+            self.available_ports.append(port)
+
         # Create the main container
         self.frame_main = tk.Frame(self.root)
         self.frame_main.pack(fill=tk.BOTH, expand=True)
@@ -90,6 +97,8 @@ class GUI:
         
         # TkInter variables
         self.var_port = tk.StringVar()
+        if self.available_ports:
+            self.var_port.set(self.available_ports[0])
         self.var_baud = tk.IntVar()
         self.var_baud.set(INIT_BAUD)
         self.var_big = tk.IntVar()
@@ -103,8 +112,9 @@ class GUI:
         self.frame_control = tk.Frame(self.frame_main)
         self.label_port = tk.Label( self.frame_control,
                                     text="Port:")
-        self.entry_port = tk.Entry( self.frame_control,
-                                    textvariable=self.var_port)
+        self.menu_port = tk.OptionMenu(self.frame_control, self.var_port, *self.available_ports)
+        # self.entry_port = tk.Entry( self.frame_control,
+        #                             textvariable=self.var_port)
         self.label_baud = tk.Label( self.frame_control,
                                     text="Baud:")
         self.entry_baud = tk.Entry( self.frame_control,
@@ -139,7 +149,8 @@ class GUI:
 
         # Lay out widgets on control frame
         self.label_port.grid(row=0, column=0, padx=5, pady=3, sticky=tk.W)
-        self.entry_port.grid(row=0, column=1, padx=5, pady=3, sticky=tk.W)
+        self.menu_port.grid(row=0, column=1, padx=5, pady=3, sticky=tk.W)
+        # self.entry_port.grid(row=0, column=1, padx=5, pady=3, sticky=tk.W)
         self.label_baud.grid(row=1, column=0, padx=5, pady=3, sticky=tk.W)
         self.entry_baud.grid(row=1, column=1, padx=5, pady=3, sticky=tk.W)
         self.button_connect.grid(row=2, column=0, columnspan=2, padx=5, pady=3)
@@ -154,13 +165,16 @@ class GUI:
         self.canvas.grid(row=0, column=1, padx=5, pady=5, sticky=tk.NW)
 
         # Place focus on port entry button by default
-        self.entry_port.focus_set()
+        self.menu_port.focus_set()
         
         # Start refresh loop
         self.img_mutex = threading.Lock()
         self.img_mutex.acquire()
         self.timestamp = time.monotonic()
         self.canvas.after(MAX_REFRESH, self.refresh_image)
+
+        # Update serial port list every 1 seconds
+        self.canvas.after(SERIAL_LIST_REFRESH, self.refresh_serial_list)
         
     def __del__(self):
         """Desctructor: make sure we close that serial port!"""
@@ -177,6 +191,7 @@ class GUI:
             return
         
         # Attempt to connect to device
+        print(self.var_port.get())
         res = self.rx_task.connect(self.var_port.get(), baud_rate)
         if (res == self.rx_task.OK):
             self.connected = True
@@ -277,6 +292,24 @@ class GUI:
         
         # Release lock to notify other thread that it can update the canvas
         self.img_mutex.release()
+
+    def refresh_serial_list(self):
+        """Update serial port list periodically"""
+
+        # Update available ports
+        new_ports = []
+        for port, desc, hwid in sorted(self.rx_task.get_serial_list()):
+            new_ports.append(port)
+
+        # If list has changed, update menu
+        if new_ports != self.available_ports:
+            self.available_ports = new_ports
+            self.menu_port['menu'].delete(0, 'end')
+            for port in self.available_ports:
+                self.menu_port['menu'].add_command(label=port, command=tk._setit(self.var_port, port))
+
+        # Reschedule function
+        self.canvas.after(SERIAL_LIST_REFRESH, self.refresh_serial_list)
         
 class ImageRxTask(threading.Thread):
     """Background thread to read image data and send to GUI"""
@@ -298,16 +331,14 @@ class ImageRxTask(threading.Thread):
         
         # Create serial port
         self.ser = serial.Serial()
-        
-        # List ports
-        print("Available serial ports:")
-        available_ports = serial.tools.list_ports.comports()
-        for port, desc, hwid in sorted(available_ports):
-            print("  {} : {} [{}]".format(port, desc, hwid))
             
     def __del__(self):
         """Desctructor"""
         self.close()
+
+    def get_serial_list(self):
+        """Get a list of serial ports"""
+        return serial.tools.list_ports.comports()
             
     def connect(self, port, baud_rate):
         """Connect to the given serial port"""
@@ -319,8 +350,8 @@ class ImageRxTask(threading.Thread):
             print("ERROR:", e)
         
         # Update port settings
-        self.ser.port=port
-        self.ser.baudrate=baud_rate
+        self.ser.port = port
+        self.ser.baudrate = baud_rate
         
         # Say that we're trying here
         print("Connecting to {} at a baud rate of {}".format(port, baud_rate))
@@ -404,10 +435,6 @@ class ImageRxTask(threading.Thread):
                                     # Decode message
                                     msg_dec = base64.b64decode(rx_buf)
                                     
-                                    # print(msg_dec[3])
-                                    # print(int.from_bytes(msg_dec[4:8], 'little'))
-                                    # print(int.from_bytes(msg_dec[8:12], 'little'))
-                                    
                                     # Extract info from header
                                     idx = EIML_SOF_SIZE
                                     format = msg_dec[idx]
@@ -440,10 +467,10 @@ class ImageRxTask(threading.Thread):
                             # Clear buffer
                             rx_buf = b''
                 
-                # Sleep the thread for a bit if there are no bytes to be read
-                else:
-                    time.sleep(0.001)
+                # Make sure the thread sleeps for a bit to let other things run
+                time.sleep(MAX_REFRESH / 1000)
             except:
+                time.sleep(MAX_REFRESH / 1000)
                 pass
 
 #-------------------------------------------------------------------------------
