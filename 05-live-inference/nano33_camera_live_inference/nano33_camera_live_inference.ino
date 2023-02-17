@@ -27,6 +27,10 @@
 #define CAM_FORMAT GRAYSCALE  // Supported: RGB565, GRAYSCALE
 #define CAM_FPS 5             // Supported: 1, 5
 
+// ***Challenge***
+//
+// Add the #define preprocessor statements to define the pins for the RGB LED
+
 // Other settings
 static const int scale_width = 40;
 static const int scale_height = 30;
@@ -232,6 +236,10 @@ void setup() {
   // Initialize serial port
   Serial.begin(BAUD_RATE);
 
+  // ***Challenge***
+  //
+  // Use pinMode() to enable the RGB LEDs
+
   // Initialize the OV7675 camera
   if (!Camera.begin(CAM_RESOLUTION, CAM_FORMAT, CAM_FPS, CAM_TYPE)) {
     Serial.println("Failed to initialize camera");
@@ -393,6 +401,34 @@ void loop() {
     ei_printf("  %s: ", ei_classifier_inferencing_categories[i]);
     ei_printf("%.5f\r\n", result.classification[i].value);
   }
+
+  // ***Challenge***
+  //
+  // Turn on a particular color LED for one of the three target labels, if the
+  // confidence score of that label is above a threshold (e.g. 0.7):
+  //  Red: "rock"
+  //  Green: "paper"
+  //  Blue: "scissors"
+  //
+  // Look at the value in result.classification[i].value to determine the
+  // confidence score (0.0..1.0). Note that result.classification[] is an array
+  // where each element corresponds to each label. For example, i=
+  //  0: _background
+  //  1: _unknown
+  //  2: paper
+  //  3: rock
+  //  4: scissors
+  // So, you can get the confidence score of "paper" with
+  //  result.classification[2].value
+  //
+  // Compare confidence score to a threshold (e.g. 0.7). If the score is above
+  // that threshold, turn on the LED.
+  //
+  // Make sure you turn off all LEDs when the _background and _unknown classes
+  // are seen!
+  //
+  // Also, remember that the LEDs are active low. So, digitalWrite(RED, LOW)
+  // would turn on the red LED.
 
   // Create encoded message buffer
   uint32_t enc_len = (xmit_img_bytes + 2) / 3 * 4;

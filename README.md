@@ -17,18 +17,42 @@ This workshop is designed for the [Arduino Tiny Machine Learning Kit](https://st
 
 If you do not have the kit, then you will need an [Arduino Nano 33 BLE Sense](https://store-usa.arduino.cc/products/arduino-nano-33-ble-sense) and an [OV7675 camera](https://www.arducam.com/products/camera-breakout-board/0-3mp-ov7675/). Connect the camera to the Arduino pins given at the top of [this sketch](01-data-capture/nano33_tinyml_kit_image_serial/nano33_tinyml_kit_image_serial.ino).
 
-## Prerequisites
+## Install Software
+
+There are two options to doing the hands-on portion of this workshop: you can either run a virtual machine (VM) that has everything configured or install the toolchain manually on your host operating system.
+
+### Virtual Machine (recommended)
+
+Follow [these instructions](https://github.com/edgeimpulse/workshop-virtual-machine) to install VirtualBox and run the preconfigured virtuam machine.
+
+### Local Installataion
+
+If the VM does not work or you do not wish to install VirtualBox, you can install the toolchain locally.
 
 Install the following programs:
 
  * [Arduino IDE](https://www.arduino.cc/en/software) (this workshop was tested with v2.0.3)
  * [Python](https://www.python.org/downloads/) (this workshop was tested with v3.10.2)
 
-[Download this repository](https://github.com/edgeimpulse/workshop-arduino-tinyml-roshambo/archive/refs/heads/main.zip) as a .zip file. Unzip it somewhere on your computer.
+## Prerequisites
+
+[Download this repository](https://github.com/edgeimpulse/workshop-arduino-tinyml-roshambo/archive/refs/heads/main.zip) as a .zip file. Unzip it somewhere on your computer (or VM).
 
 You will also need a [Gmail account](https://accounts.google.com/SignUp) if you do not already have one in order to run Google Colab scripts.
 
+## Introduction
+
+Let's cover the basics of embedded machine learning and computer vision. Feel free to keep installing the required programs during the presentation!
+
+1. [Workshop Intro](slides/workshop-intro.pptx?raw=true)
+2. [Intro to Embedded ML](slides/intro-to-embedded-ml.pptx?raw=true)
+3. [Intro to Computer Vision](slides/intro-to-computer-vision.pptx?raw=true)
+
 ## 01: Data Capture
+
+Concept slides: 
+1. [Overview of Digital Images](slides/overview-of-digital-images.pptx?raw=true)
+2. [Image Classification](slides/image-classification.pptx?raw=true)
 
 Almost every supervised machine learning project starts with some kind of dataset. Rather than using a pre-made dataset, we will create our own. This process provides hands-on experience working with raw data and demonstrates how bias might be introduced into machine learning models.
 
@@ -112,6 +136,10 @@ zip -FS -r dataset.zip *.png
 
 ## 02: Data Augmentation
 
+Concept slides:
+1. [Data Augmentation](slides/data-augmentation.pptx?raw=true)
+2. [Challenges in Computer Vision](slides/computer-vision-challenges.pptx?raw=true)
+
 Most ML models (even the simple neural network we plan to use) require a lot of data to be even remotely accurate. We collected a relatively small amount of data. Real, original data is obviously the best, but for the sake of time, we will automatically generate new samples based on the data we collected. This technique is known as [Data Augmentation](https://en.wikipedia.org/wiki/Data_augmentation). 
 
 We will use a Python script (Jupyter Notebook) in Google Colab. If you have not done so already, create a [Gmail account](https://accounts.google.com/SignUp).
@@ -149,6 +177,12 @@ If you head to the *Data acquisition* page in your Edge Impulse project, you sho
 ![Images as part of the training dataset in Edge Impulse](images/screen-11.png)
 
 ## 03: Model Training
+
+Concept slides:
+1. [Review of Neural Networks](slides/review-of-neural-networks.pptx?raw=true)
+2. [Image Convolution](slides/image-convolution.pptx?raw=true)
+3. [Image Pooling](slides/image-pooling.pptx?raw=true)
+4. [Convolutional Neural Networks](slides/convolutional-neural-networks.pptx?raw=true)
 
 Go to your project in Edge Impulse. Go to the **Impulse design** page. Change the *Image data* resolution to be:
 
@@ -256,7 +290,7 @@ The label with the highest score is the predicted class. As shown in the screens
 > **Note**
 > You will probably notice that you need to hold your hand in a very specific position at a very specific distance from the camera. This is because we are working with a simple convolutional neural network that has little translation and rotation invariance. Data augmentation helped some, but it's far from perfect. Also, try pointing the camera away from its usual background (e.g. the ceiling). How does that change the inference results? Different lighting can drastically affect the functionality of computer vision applications!
 
-## Challenge
+## Challenge!
 
 Now that you have live inference working, what can you do with it? For most embedded ML projects, you examine the inference results and perform some action based on the maximum predicted class. For example, if your simple smart camera identifies a "person," maybe it will turn on a light (a kind of "visual wake word").
 
@@ -268,12 +302,35 @@ Your challenge is to make one of the LEDs on the Arduino board light up whenever
 
 The LEDs should be off for any other class (e.g. "_background" and "_unknown"). One way to do this is to compare the confidence score values to a threshold. You can also simply identify the class with the highest score. [This tutorial](https://support.arduino.cc/hc/en-us/articles/360016724140-How-to-control-the-RGB-LED-and-Power-LED-of-the-Nano-33-BLE-boards-) demonstrates how to control the LEDs on the Nano 33 BLE Sense.
 
+Need some hints?
+* Look for the `// ***Challenge***` comment tags in *nano33_camera_live_inference.ino* to get some hints about where you might want to modify the code.
+* You can use `ei_printf("some text\r\n")` to print strings to a terminal. This can help with debugging.
+* Try running the demonstration code in [the tutorial listed above](https://support.arduino.cc/hc/en-us/articles/360016724140-How-to-control-the-RGB-LED-and-Power-LED-of-the-Nano-33-BLE-boards-) without adding any code: can you get the LEDs to blink?
+* Read the demo code: note how `pinMode()` is used to configure the LEDs and `digitalWrite()` is used to control the LED state.
+* Important! The RGB LED is "active low," which means you use `digitalWrite(RED, LOW)` to turn on the red LED.
+* Modify the *live-inference* code in this repository to include LED controls. That means adding `pinMode()` function calls in `setup()` and calling `digitalWrite()` whenever a result score meets a particular threshold.
+* Classification scores are stored in the `result.classification[i].value` variable. `result.classification[]` is an array where each element corresponds to a particular label (e.g. "rock," "_unknown").
+* You can read more about the `ei_impulse_result_t` struct [here](https://docs.edgeimpulse.com/reference/c++-inference-sdk-library/structs/ei_impulse_result_t).
+
 > **Note**
-> Choosing an appropriate threshold can be tricky and depends on your use case. Higher thresholds (e.g. 70%) for a class reduce false positives, but you might miss some true positives (i.e. increased false negative rate). Lower thresholds (e.g. 30%) reduce false negatives but might introduce more false positives. 
+> Choosing an appropriate threshold can be tricky and depends on your use case. Higher thresholds (e.g. 70%) for a class reduce false positives, but you might miss some true positives (i.e. increased false negative rate). Lower thresholds (e.g. 30%) reduce false negatives but might introduce more false positives.
+
+## Going Further
+
+Image classification is a great introduction to computer vision, but it is just the beginning. Computer vision encompasses a wide variety of tasks, including object detection, image segmentation, pose estimation, optical character recognition (OCR), face recognition, etc. The following slides offer some additional information for these tasks:
+
+1. [Intro to Object Detection](slides/intro-to-object-detection.pptx?raw=true)
+2. [Intro to Image Segmentation](slides/intro-to-image-segmentation.pptx?raw=true)
+
+Want some more information about embedded machine learning in the real world? Here are some projects and other examples:
+
+1. [Embedded ML Applications](slides/embedded-ml-applications.pptx?raw=true)
 
 ## License
 
 This tutorial (README.md) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+Slides are licesned under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 Unless otherwise specified, code in this repository is licensed under the APACHE 2.0 open source license.
 
