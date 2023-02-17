@@ -7,6 +7,7 @@ Welcome to the Roshambo workshop! We will build an image classification system t
  3. [Train a convolutional neural network on the dataset using Edge Impulse](#03-model-training)
  4. (Optional) [Test inference locally on the Arduino using a static buffer](#04-optional-static-inference)
  5. [Perform live, continuous inference that identifies hand gestures in real time](#05-live-inference)
+ 6. (Optional) [Challenge! Flash LEDs based on inference results](#challenge)
 
 > **Note**
 > Helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for [attribution](https://creativecommons.org/licenses/by-nc-sa/4.0/)!
