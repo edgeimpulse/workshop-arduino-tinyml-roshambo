@@ -33,7 +33,19 @@ If the VM does not work or you do not wish to install VirtualBox, you can instal
 Install the following programs:
 
  * [Arduino IDE](https://www.arduino.cc/en/software) (this workshop was tested with v2.0.3)
- * [Python](https://www.python.org/downloads/) (this workshop was tested with v3.10.2)
+ * [Python](https://www.python.org/downloads/) (this workshop was tested with v3.10.2, but anything above 3.6 should work)
+
+Open the Arduino IDE. Go to **Tools > Board > Boards Manager...**. Search for "nano 33" in the boards manager pane. Install the **Arduino Mbed OS Nano Boards** board package.
+
+![Install board package in Arduino IDE](images/screen-01.png)
+
+Install the [PySerial](https://pyserial.readthedocs.io/en/latest/) and [Pillow](https://pillow.readthedocs.io/en/stable/) Python packages:
+
+```shell
+python -m pip install Pillow pyserial
+```
+
+> If you do not have pip installed, you will need to [install it](https://pip.pypa.io/en/stable/installation/).
 
 ## Prerequisites
 
@@ -63,11 +75,7 @@ Almost every supervised machine learning project starts with some kind of datase
 > **Note**
 > Also, you are welcome to collect hand gestures other than rock, paper, and scissors. Just please keep it clean and under 5 target classes!
 
-Open the Arduino IDE. Go to **Tools > Board > Boards Manager...**. Search for "nano 33" in the boards manager pane. Install the **Arduino Mbed OS Nano Boards** board package.
-
-![Install board package in Arduino IDE](images/screen-01.png)
-
-Go to **Sketch > Include Library > Add .ZIP Librar...**. Select **Arduino_OV767X.zip** file. This library is required for the Arduino Nano 33 BLE Sense to communicate with the camera on the TinyML kit.
+In the Arduino IDE, go to **Sketch > Include Library > Add .ZIP Librar...**. Select **Arduino_OV767X.zip** file. This library is required for the Arduino Nano 33 BLE Sense to communicate with the camera on the TinyML kit.
 
 Go to **File > Open...** and open the sketch **01-data-capture/nano33_tinyml_kit_image_serial/nano33_tinyml_kit_image_serial.ino**. Feel free to examine the code in the file to understand how images are captured, scaled, and cropped.
 
