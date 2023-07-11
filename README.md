@@ -339,7 +339,7 @@ Want some more information about embedded machine learning in the real world? He
 
 This tutorial (README.md) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-Slides are licesned under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+Slides are lisesned under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 Unless otherwise specified, code in this repository is licensed under the APACHE 2.0 open source license.
 
