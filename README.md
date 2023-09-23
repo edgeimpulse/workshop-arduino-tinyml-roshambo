@@ -12,6 +12,8 @@ Welcome to the Roshambo workshop! We will build an image classification system t
 > **Note**
 > Helpful information will be highlighted in boxes like this. As the written documentatation and code for this workshop are all open source, you are welcome to use parts (or all) of this workshop to create your own course, workshop, etc. We just ask for [attribution](https://creativecommons.org/licenses/by-nc-sa/4.0/)!
 
+Data collection is an important part of developing machine learning systems. You are welcome to start with my pre-trained model on [Edge Impulse here](https://studio.edgeimpulse.com/public/184608/latest), but since the data was captured in a *different environment*, I cannot promise it will work well for your environment.
+
 ## Required Hardware
 
 This workshop is designed for the [Arduino Tiny Machine Learning Kit](https://store-usa.arduino.cc/products/arduino-tiny-machine-learning-kit).
@@ -19,16 +21,6 @@ This workshop is designed for the [Arduino Tiny Machine Learning Kit](https://st
 If you do not have the kit, then you will need an [Arduino Nano 33 BLE Sense](https://store-usa.arduino.cc/products/arduino-nano-33-ble-sense) and an [OV7675 camera](https://www.arducam.com/products/camera-breakout-board/0-3mp-ov7675/). Connect the camera to the Arduino pins given at the top of [this sketch](01-data-capture/nano33_tinyml_kit_image_serial/nano33_tinyml_kit_image_serial.ino).
 
 ## Install Software
-
-There are two options to doing the hands-on portion of this workshop: you can either run a virtual machine (VM) that has everything configured or install the toolchain manually on your host operating system.
-
-### Virtual Machine (recommended)
-
-Follow [these instructions](https://github.com/edgeimpulse/workshop-virtual-machine) to install VirtualBox and run the preconfigured virtuam machine.
-
-### Local Installataion
-
-If the VM does not work or you do not wish to install VirtualBox, you can install the toolchain locally.
 
 Install the following programs:
 
@@ -42,7 +34,7 @@ Open the Arduino IDE. Go to **Tools > Board > Boards Manager...**. Search for "n
 Install the [PySerial](https://pyserial.readthedocs.io/en/latest/) and [Pillow](https://pillow.readthedocs.io/en/stable/) Python packages:
 
 ```shell
-python -m pip install Pillow pyserial
+python3 -m pip install Pillow pyserial
 ```
 
 > If you do not have pip installed, you will need to [install it](https://pip.pypa.io/en/stable/installation/).
@@ -89,23 +81,22 @@ Open a terminal window and navigate to this directory. For example:
 cd Downloads/workshop-arduino-tinyml-roshambo/
 ```
 
-Install the [PySerial](https://pyserial.readthedocs.io/en/latest/) and [Pillow](https://pillow.readthedocs.io/en/stable/) Python packages:
+If you have not already done so, install the [PySerial](https://pyserial.readthedocs.io/en/latest/) and [Pillow](https://pillow.readthedocs.io/en/stable/) Python packages:
 
 ```shell
-python -m pip install Pillow pyserial
+python3 -m pip install Pillow pyserial
 ```
 
 Run the Serial Image Capture Python script:
 
 ```shell
-serial-image-capture.py
+python3 serial-image-capture.py
 ```
 
-Pay attention to the serial ports printed to the console! Copy the serial port location for your Arduino board. For example, this might be something like *COM7* on Windows or */dev/cu.usbmodem1442201* on macOS.
+> **Troubleshooting**
+> If you see an error like `No module named '_tkinter'`, it means that (for some reason) Python was not installed with the tkinter package. You will need to install it with `brew install python-tk` (macOS), `python3 -m pip install tk` (Windows and Linux).
 
-![Copy serial device port](images/screen-02.png)
-
-Paste that serial port location into the *Port* entry in the *Serial Image Capture* GUI. Make sure that the baud rate matches that found in the Arduino sketch (should be 230400 unless you changed it).
+From the **Port** drop-down menu, select the serial port associated with your Arduino board (check with the Arduino IDE to verify the port).
 
 Press **Connect**. You should see a live view of the Arduino camera. Click *Embiggen view* to make the image bigger. Due to the slow nature of converting and transmitting raw image data over a serial connection, do not expect more than a few frames per second.
 
@@ -231,7 +222,7 @@ Go to the **Model testing** page and click **Classify all**. This will perform i
 
 Navigate to the **Deployment** page in your project. Edge Impulse is capable of exporting your project (feature extraction and model inference) to a number of supported hardware platforms. Note that the *C++ library* option is the most versatile: so long as your target hardware has a C++ compiler (and enough flash/RAM), you can run inference with your trained Edge Impulse model! However, the C++ library may not be optimized for some hardware (e.g. ML accelerators).
 
-Select the **Arduino library** option, as we'll be using Arduino to build our embedded project.
+In the search bar, enter **Arduino** and select the **Arduino library** option.
 
 ![Deploying the machine learning model as an Arduino library in Edge Impulse](images/screen-16.png)
 
@@ -243,6 +234,8 @@ Scroll down to the bottom of the page. Leave the [EON Compiler](https://www.edge
 ![Selecting quantized optimization setting in Edge Impulse](images/screen-17.png)
 
 When the build process is complete, you should have an Arduino library (in .zip format) automatically downloaded to your computer. This library includes the blocks we created in the Edge Impulse Studio: feature extraction and classification (i.e. the fully trained model).
+
+You are welcome to look at my public project on [Edge Impulse here](https://studio.edgeimpulse.com/public/184608/latest) if you would like to see what a fully trained model looks like.
 
 ## 04: (Optional) Static Inference
 
@@ -287,7 +280,7 @@ Open [05-live-inference/nano33_camera_live_inference/nano33_camera_live_inferenc
 Upload the code to your Arduino board. Compiling the Edge Impulse library will likely take a while, so be patient. Once complete, run the Serial Image Capture script from a terminal:
 
 ```shell
-python serial-image-capture.py
+python3 serial-image-capture.py
 ```
 
 Paste in the port of your Arduino board and click **Connect**. The viewer will show you what the Arduino sees. Hold your hand over the camera and make the various gestures (e.g. rock, paper, scissors). Take a look at the terminal window--you should see the live inference results being printed!

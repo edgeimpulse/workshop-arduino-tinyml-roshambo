@@ -12,7 +12,7 @@
  * License: Apache-2.0
  */
 
-#include <YOUR_EI_LIBRARY.h>
+#include <arduino-roshambo-demo-asee_inferencing.h>
 #include <Arduino_OV767X.h>
 #include "base64.h"  // Used to convert data to Base64 encoding
 
@@ -391,6 +391,7 @@ void loop() {
 
   // Print return code, time it took to perform inference, and inference
   // results. Note that the grader will ignore these outputs.
+  ei_printf("---\r\n");
   ei_printf("run_classifier returned: %d\r\n", res);
   ei_printf("Timing: DSP %d ms, inference %d ms, anomaly %d ms\r\n", 
             result.timing.dsp, 
