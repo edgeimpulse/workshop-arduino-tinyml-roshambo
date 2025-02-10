@@ -55,14 +55,14 @@ Let's cover the basics of embedded machine learning and computer vision. Feel fr
 
 ## 01: Data Capture
 
-Concept slides: 
+Concept slides:
 1. [Overview of Digital Images](slides/overview-of-digital-images.pptx?raw=true)
 2. [Image Classification](slides/image-classification.pptx?raw=true)
 
 Almost every supervised machine learning project starts with some kind of dataset. Rather than using a pre-made dataset, we will create our own. This process provides hands-on experience working with raw data and demonstrates how bias might be introduced into machine learning models.
 
 > **Note**
-> The data we collect for this workshop will be just enough to build our quick demo. As a result, you can expect a model accuracy of only around 90%. For most production-ready models, you will need a LOT more data! Collecting quality data can be an expensive and time-consuming process. 
+> The data we collect for this workshop will be just enough to build our quick demo. As a result, you can expect a model accuracy of only around 90%. For most production-ready models, you will need a LOT more data! Collecting quality data can be an expensive and time-consuming process.
 
 > **Note**
 > Also, you are welcome to collect hand gestures other than rock, paper, and scissors. Just please keep it clean and under 5 target classes!
@@ -106,7 +106,7 @@ Enter "rock" for your first label. Hold your fist over the camera and ensure tha
 
 Repeat this process about 50 times. Each time, you should move your fist slightly (to help ensure the model is robust), but make sure your fist is fully visible in the viewer each time.
 
-Repeat the data collection process for "paper" (hand flat out over the camera). Once again, ensure that your hand is almost entirely visible where possible. 
+Repeat the data collection process for "paper" (hand flat out over the camera). Once again, ensure that your hand is almost entirely visible where possible.
 
 ![Capture "paper" hand gesture](images/screen-04.png)
 
@@ -140,7 +140,7 @@ Concept slides:
 1. [Data Augmentation](slides/data-augmentation.pptx?raw=true)
 2. [Challenges in Computer Vision](slides/computer-vision-challenges.pptx?raw=true)
 
-Most ML models (even the simple neural network we plan to use) require a lot of data to be even remotely accurate. We collected a relatively small amount of data. Real, original data is obviously the best, but for the sake of time, we will automatically generate new samples based on the data we collected. This technique is known as [Data Augmentation](https://en.wikipedia.org/wiki/Data_augmentation). 
+Most ML models (even the simple neural network we plan to use) require a lot of data to be even remotely accurate. We collected a relatively small amount of data. Real, original data is obviously the best, but for the sake of time, we will automatically generate new samples based on the data we collected. This technique is known as [Data Augmentation](https://en.wikipedia.org/wiki/Data_augmentation).
 
 We will use a Python script (Jupyter Notebook) in Google Colab. If you have not done so already, create a [Gmail account](https://accounts.google.com/SignUp).
 
@@ -194,7 +194,7 @@ Click **Add a processing block** and add the **Image** block. Click **Add a lear
 
 ![Building an impulse with processing and learning blocks in Edge Impulse](images/screen-12.png)
 
-Click on **Image** under *Impulse design*. Change the *Color depth* to **Grayscale**. 
+Click on **Image** under *Impulse design*. Change the *Color depth* to **Grayscale**.
 
 ![Change color depth to grayscale in Edge Impulse processing block](images/screen-13.png)
 
@@ -332,21 +332,6 @@ Want some more information about embedded machine learning in the real world? He
 
 This tutorial (README.md) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-Slides are lisesned under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+Slides are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
-Unless otherwise specified, code in this repository is licensed under the APACHE 2.0 open source license.
-
-Copyright 2023 EdgeImpulse, Inc.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-
+Source code is licensed according to [LICENSE](LICENSE).
